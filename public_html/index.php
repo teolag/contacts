@@ -3,21 +3,35 @@
 require "../includes/init.php";
 
 
-if(empty($_SESSION['token'])) {
-	$scope = array(
-		'https://www.googleapis.com/auth/userinfo.profile',
-		'https://www.google.com/m8/feeds/'
-	);
-	$scopes = implode("+", $scope);
-	header("Location: https://accounts.google.com/o/oauth2/auth?client_id={$client_id}&redirect_uri={$redirect_uri}&scope={$scopes}&response_type=code");
+
+
+$token = $_SESSION['token'];
+
+if(empty($token)) {
+	$scope = "email%20profile";
+	$authUrl = sprintf("https://accounts.google.com/o/oauth2/auth?scope=%s&redirect_uri=%s&response_type=code&client_id=%s", $scope, $redirect_uri, $client_id);
+	echo $authUrl;
+	header("Location: " . $authUrl);
 	exit();
 }
 
 
-$q = 'https://www.googleapis.com/oauth2/v1/userinfo?v=3.0&access_token='.$_SESSION['token'];
-$json = file_get_contents($q);
-$userInfoArray = json_decode($json,true);
-	
+$url = "https://www.googleapis.com/userinfo/v2/me?";
+$curl = curl_init();
+$headers = array(
+	"Authorization: Bearer " . $token,
+	"GData-Version: 3.0",
+);
+curl_setopt($curl, CURLOPT_URL, $url);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($curl, CURLOPT_POST, false);
+$result = curl_exec($curl);
+curl_close($curl);
+
+$user = json_decode($result);
+$_SESSION['googleId'] = $user->id;
+
 ?>
 
 <!doctype html>
@@ -44,7 +58,9 @@ $userInfoArray = json_decode($json,true);
 		
 		<div class="column main">
 		
-			<?php print_r($userInfoArray); ?>
+			<?php print_r($user); ?>
+			
+			<a href="/action/logout.php">Logout</a><br>
 			
 			<div id="info"></div>
 			

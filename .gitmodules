@@ -1,6 +1,3 @@
-[submodule "includes/google-api"]
-	path = includes/google-api
-	url = https://github.com/google/google-api-php-client.git
 [submodule "includes/DatabasePDO"]
 	path = includes/DatabasePDO
 	url = https://github.com/teolag/DatabasePDO.git

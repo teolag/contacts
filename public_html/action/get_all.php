@@ -2,6 +2,12 @@
 	
 require "../../includes/init.php";
 
+
+if($_SESSION['googleId']!==$googleId) {
+	die("invalid googleId");
+}
+
+
 $timerStart = microtime(true);
 $response = array();
 
