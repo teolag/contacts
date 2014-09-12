@@ -1,0 +1,14 @@
+Options +FollowSymLinks
+RewriteEngine On
+ 
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteCond %{SCRIPT_FILENAME} !-f
+ 
+RewriteRule ^get/?$ ./api.php?action=get
+
+
+#RewriteRule ^get/users/?$ ./get.php?get=users
+#RewriteRule ^get/events/?$ ./get.php?get=events
+#RewriteRule ^get/records/?$ ./get.php?get=records
+#RewriteRule ^get/records/user/([a-zA-Z0-9]*)/?$ ./get.php?get=records&username=$1
+#RewriteRule ^get/records/event/([a-zA-Z0-9]*)/?$ ./get.php?get=records&event_id=$1
