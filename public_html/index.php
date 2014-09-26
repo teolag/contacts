@@ -2,9 +2,6 @@
 
 require "../includes/init.php";
 
-
-
-
 $token = $_SESSION['token'];
 
 if(empty($token)) {
@@ -16,7 +13,7 @@ if(empty($token)) {
 }
 
 
-$url = "https://www.googleapis.com/userinfo/v2/me?";
+$url = "https://www.googleapis.com/oauth2/v3/userinfo";
 $curl = curl_init();
 $headers = array(
 	"Authorization: Bearer " . $token,
@@ -30,46 +27,57 @@ $result = curl_exec($curl);
 curl_close($curl);
 
 $user = json_decode($result);
-$_SESSION['googleId'] = $user->id;
+$_SESSION['googleId'] = $user->sub;
 
 ?>
 
 <!doctype html>
 <html>
 	<head>
-		<title>My contacts</title>
+		<title>xioContacts</title>
 		<meta charset="utf-8" />
 		<link rel="stylesheet" href="/css/style.css" type="text/css" />
+		<link rel="icon" href="/img/contact.png" sizes="32x32">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 	</head>
 	<body>
-	
+
 		<div class="column left">
-	
+
 			<input type="search" id="filter" />
-			
-			<button type="button" id="btnNewPerson">+</button>
-	
+
+			<menu type="toolbar">
+				<button type="button" id="btnNewPerson">+</button>
+				<button type="button" id="btnSelectAll">Select all</button>
+				<button type="button" id="btnDeselectAll">Deselect all</button>
+			</menu>
+
 			<div id="personsBox">
 				<ul id="persons"></ul>
 			</div>
-		
+		</div>
+
+		<div class="column main">		
+			<div id="userBox">
+				<img src="<?php echo $user->picture; ?>" />
+				<div class="name"><?php echo $user->name; ?></div>
+				<div class="email"><?php echo $user->email; ?></div>
+				<a href="/action/logout.php">Logout</a><br>
+			</div>
+
+			<div id="info"></div>		
 		</div>
 		
-		<div class="column main">
 		
-			<?php print_r($user); ?>
-			
-			<a href="/action/logout.php">Logout</a><br>
-			
-			<div id="info"></div>
-			
-			
-		
-		</div>
+		<template id="tplPerson">
+			<span class="firstName"></span>
+			<span class="lastName"></span>
+			<br>
+			<span class="birthdate"></span>
+		</template>
 		
 		
-		
+
 		<dialog id="dialogPerson">
 			<form>
 				<input type="hidden" name="personId" />
@@ -80,7 +88,6 @@ $_SESSION['googleId'] = $user->id;
 				<br><br>
 				<button type="submit">Save</button>
 				<button type="button" id="btnCancelPersonEdit">Cancel</button>
-			
 			</form>
 		</dialog>
 		
