@@ -57,7 +57,7 @@ $_SESSION['googleId'] = $user->sub;
 			</div>
 		</div>
 
-		<div class="column main">		
+		<div class="column main">
 			<div id="userBox">
 				<img src="<?php echo $user->picture; ?>" />
 				<div class="name"><?php echo $user->name; ?></div>
@@ -65,18 +65,21 @@ $_SESSION['googleId'] = $user->sub;
 				<a href="/action/logout.php">Logout</a><br>
 			</div>
 
-			<div id="info"></div>		
+			<div id="info"></div>
 		</div>
-		
-		
+
+
 		<template id="tplPerson">
 			<span class="firstName"></span>
 			<span class="lastName"></span>
 			<br>
 			<span class="birthdate"></span>
+
+			<button type="button" class="edit">Edit</button>
+
 		</template>
-		
-		
+
+
 
 		<dialog id="dialogPerson">
 			<form>
@@ -90,7 +93,7 @@ $_SESSION['googleId'] = $user->sub;
 				<button type="button" id="btnCancelPersonEdit">Cancel</button>
 			</form>
 		</dialog>
-		
+
 		<script src="/js/main.js"></script>
 	</body>
 </html>

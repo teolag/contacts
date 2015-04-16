@@ -4,7 +4,7 @@ var txtFilter = document.getElementById("filter");
 txtFilter.addEventListener("keyup", filterPersons, false);
 txtFilter.addEventListener("change", filterPersons, false);
 txtFilter.addEventListener("search", filterPersons, false);
-	
+
 var personList = document.getElementById("persons");
 personList.addEventListener("click", personListClickHandler, false);
 
@@ -47,28 +47,32 @@ function allLoaded(e) {
 	tags = e.target.response.tags;
 	console.log(Object.keys(persons).length + " persons loaded");
 	console.log(Object.keys(tags).length + " tags loaded");
-	
-	printPersonList();	
+
+	printPersonList();
 }
 
 
 
 function printPersonList() {
 	var listItems = document.createDocumentFragment();
-	
+
 	var personIds = Object.keys(persons);
 	personIds = sortPersons(personIds, 'name');
-	
-	
+
+
 	for(var i=0; i<personIds.length; i++) {
 		var person = persons[personIds[i]];
 		var li = document.createElement("LI");
 		li.dataset.id = personIds[i];
-		li.textContent = person.first_name + " " + person.last_name + " (" + (person.birthdate ? getAge(new Date(person.birthdate)) : "unknown") + ")";
-		listItems.appendChild(li);		
+		li.textContent = person.first_name + " " + person.last_name;
+
+		if(person.birthdate) {
+			li.textContent += " (" + getAge(new Date(person.birthdate)) + ")";
+		}
+		listItems.appendChild(li);
 		person.li = li;
 	}
-	
+
 	personList.innerHTML="";
 	personList.appendChild(listItems);
 }
@@ -77,10 +81,10 @@ function printPersonList() {
 
 function hasWordInTags(word, tagIds) {
 	if(!tagIds) return false;
-	
+
 	for(var i=0; i<tagIds.length; i++) {
 		var tag = tags[tagIds[i]].tag.toLowerCase();
-	
+
 		if(tag.indexOf(word)>-1) {
 			return true;
 		}
@@ -91,30 +95,30 @@ function hasWordInTags(word, tagIds) {
 function filterPersons(e) {
 	//console.log("filter", e.type, txtFilter.value, e);
 	var words = txtFilter.value.split(" ");
-		
+
 	for(var id in persons) {
 		var person = persons[id];
 		var show = true;
 		var personStr = (person.first_name + " " + person.last_name).toLowerCase();
-		
+
 		for(var j=0; j<words.length; j++) {
 			var word = words[j].toLowerCase();
-			
+
 			var wordInPerson = personStr.indexOf(word)>-1;
 			var wordInTags = hasWordInTags(word, person.tags);
 			if(!wordInPerson && !wordInTags) {
 				show=false;
 				break;
-			}			
+			}
 		}
-		
+
 		if(show) {
 			person.li.classList.remove("hidden");
 		} else {
 			person.li.classList.add("hidden");
 		}
 	}
-	
+
 }
 
 function personListClickHandler(e) {
@@ -124,7 +128,7 @@ function personListClickHandler(e) {
 		if(li===personList) return;
 		li = li.parentNode;
 	}
-	
+
 	console.log("click", e);
 	if(e.ctrlKey || e.metaKey) {
 		li.classList.toggle("selected");
@@ -133,7 +137,7 @@ function personListClickHandler(e) {
 		li.classList.add("selected");
 	}
 	updateSelectedPersons();
-	
+
 }
 
 function selectAll() {
@@ -167,26 +171,16 @@ function updateSelectedPersons() {
 	var selected = personList.querySelectorAll("li.selected");
 	var ids = [];
 	info.innerHTML="";
-	
+
 	for(var i=0; i<selected.length; i++) {
 		var li = selected[i];
 		ids.push(li.dataset.id);
 	}
-	
+
 	if(ids.length===0) {
 		info.textContent = "no contacts selected";
 	} else if(ids.length===1) {
 		showPerson(ids[0]);
-		/*
-		info.textContent = persons[ids[0]].first_name + " " + persons[ids[0]].last_name;
-		
-		var editButton = document.createElement("button");
-		editButton.type="button";
-		editButton.textContent = "Edit";
-		editButton.dataset.personId=ids[0];
-		editButton.addEventListener("click", editPerson, false);
-		info.appendChild(editButton);
-		*/
 	} else {
 		info.textContent = ids.length + " contacts selected";
 		var joinButton = document.createElement("button");
@@ -205,14 +199,22 @@ function showPerson(personId) {
 
 	var firstName = content.querySelector('span.firstName');
     firstName.textContent = person.first_name;
-	
+
 	var lastName = content.querySelector('span.lastName');
     lastName.textContent = person.last_name;
-	
+
 	var birthdate = content.querySelector('span.birthdate');
-    birthdate.textContent = person.birthdate.substr(0,10);
-	
+	if(person.birthdate) {
+	    birthdate.textContent = person.birthdate.substr(0,10);
+	} else {
+		birthdate.textContent = "birthday unknown";
+	}
+
     info.appendChild(document.importNode(content, true));
+
+	var editButton = info.querySelector("button.edit");
+	editButton.dataset.personId = personId;
+	editButton.addEventListener("click", editPerson, false);
 }
 
 
@@ -226,7 +228,7 @@ function editPerson(e) {
 	var inputs = dialogPersonForm.elements;
 	var personId = e.target.dataset.personId;
 	var person = persons[personId];
-	
+
 	inputs.personId.value = personId;
 	inputs.firstName.value = person.first_name;
 	inputs.lastName.value = person.last_name;
@@ -248,14 +250,14 @@ function cancelEditPerson() {
 
 function submitPerson(e) {
 	var formData = new FormData(dialogPersonForm);
-	
+
 	var xhr = new XMLHttpRequest();
 	xhr.responseType = "json";
 	xhr.addEventListener("load", submitPersonCallback, false);
 	xhr.open("POST", "/action/person_update.php", true);
 	xhr.send(formData);
-	
-	
+
+
 	dialogPerson.close();
 	e.preventDefault();
 }
@@ -267,24 +269,24 @@ function submitPersonCallback(e) {
 
 
 
-function sortPersons(personIds, order, reverse) { 
+function sortPersons(personIds, order, reverse) {
 	personIds.sort(function(id1,id2) {
-		var p1 = persons[id1]; 
-		var p2 = persons[id2]; 
-		switch(order) { 
-			case "name": 
-			var n1 = (p1.first_name+p1.last_name).toLowerCase(); 
-			var n2 = (p2.first_name+p2.last_name).toLowerCase(); 
-			if (n1 < n2) return -1; 
-			if (n1 > n2) return 1; 
-			return 0; 
-			
+		var p1 = persons[id1];
+		var p2 = persons[id2];
+		switch(order) {
+			case "name":
+			var n1 = (p1.first_name+p1.last_name).toLowerCase();
+			var n2 = (p2.first_name+p2.last_name).toLowerCase();
+			if (n1 < n2) return -1;
+			if (n1 > n2) return 1;
+			return 0;
+
 			case "age":
 			var b1 = new Date(p1.birthdate);
 			var b2 = new Date(p2.birthdate);
 			return b2-b1;
 			break;
-			
+
 			case "birthday":
 			var b1 = new Date(p1.birthdate);
 			var b2 = new Date(p2.birthdate);
@@ -294,9 +296,9 @@ function sortPersons(personIds, order, reverse) {
 			break;
 		}
 	});
-	if(reverse) { 
-		personIds.reverse(); 
-	} 
+	if(reverse) {
+		personIds.reverse();
+	}
 	return personIds;
 }
 

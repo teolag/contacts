@@ -5,7 +5,7 @@ require "../../includes/config.php";
 
 
 if (isset($_GET['code'])) {
-	
+
 
 	$auth_code = $_GET["code"];
 
@@ -18,7 +18,7 @@ if (isset($_GET['code'])) {
 		'grant_type'=>  urlencode('authorization_code')
 	);
 	$post = '';
-	foreach($fields as $key=>$value) { 
+	foreach($fields as $key=>$value) {
 		$post .= $key.'='.$value.'&';
 	}
 	$post = rtrim($post,'&');
@@ -31,15 +31,15 @@ if (isset($_GET['code'])) {
 	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
 	$result = curl_exec($curl);
 	curl_close($curl);
-	
+
 	$json = json_decode($result);
-	
+
 	$token = $json->access_token;
 	$_SESSION['token'] = $token;
 	echo "Token: " . $token . "<br>";
-	
-	
-	
+
+
+
 	header("Location: ../index.php");
 }
 

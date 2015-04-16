@@ -20,7 +20,7 @@ body {
 
 .column.main {
 	flex: 3;
-	background-color: #efd;
+	background-color: #fff;
 }
 
 
@@ -100,16 +100,16 @@ dialog::backdrop {
 
 
 #userBox {
-	background-color: #fff;
+	background-color: rgba(0,0,0,0.15);
 	padding: 0.2em;
 	float: right;
-	box-shadow: 1px 1px 7px rgba(0,0,0,0.3);
 	margin: 0.5em;
-	width: 250px;
+	width: 150px;
+	font-size: 12px;
 }
 
 #userBox img {
-	width: 70px;
+	width: 44px;
 	border-radius: 4px;
 	float: left;
 	margin-right: 0.5em;
