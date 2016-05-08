@@ -1,5 +1,10 @@
+
 html, body {
 	height: 100%;
+}
+
+html {
+	font: 16px sans-serif;
 }
 
 body {
@@ -9,6 +14,17 @@ body {
 	margin: 0;
 	align-items: stretch;
 }
+
+
+
+input, button, select, textarea {
+	font: inherit;
+}
+
+
+
+
+
 
 .column.left {
 	flex: 1;
@@ -39,7 +55,33 @@ menu {
 
 
 
-input#filter {
+
+
+#personsBox {
+	overflow: auto;
+	flex: 1;
+}
+
+
+
+
+.person-list {
+	padding: 0;
+	margin: 0;
+}
+
+.person-list-item {
+	margin: 0 0 1px 0;
+	cursor: pointer;
+	padding: 0.3em 0.5em 0.3em 0.5em;
+	list-style-type: none;
+}
+.person-list-item.selected {
+	background-color: #bada55;
+}
+
+.person-list-filter {
+	flex: 0 0 auto;
 	margin: 0.5em;
 	padding: 0.2em 0.5em;
 	font-size: 1em;
@@ -47,27 +89,23 @@ input#filter {
 }
 
 
-#persons {
+
+
+
+.person-tags {
 	padding: 0;
 	margin: 0;
 }
-
-#personsBox {
-	overflow: auto;
-	flex: 1;
-}
-
-li {
-	margin: 0 0 1px 0;
-	cursor: pointer;
-	padding: 0.3em 0.5em 0.3em 0.5em;
+.person-tag {
+	border-radius: 0.2em;
+	font-size: 0.8em;
+	padding: 0.2em 0.3em;
+	background-color: rebeccapurple;
+	display: inline-block;
 	list-style-type: none;
+	color: white;
+	margin: 0.1em;
 }
-
-li.selected {
-	background-color: #bada55;
-}
-
 
 
 

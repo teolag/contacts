@@ -1,1 +1,3 @@
 includes/config.php
+api/node_modules
+api/config.json

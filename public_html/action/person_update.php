@@ -45,7 +45,7 @@ if(empty($personId)) {
 
 
 function getPerson(&$db, $personId) {
-	$sql = "SELECT persons.person_id, first_name, last_name, birth.value AS birthdate FROM persons LEFT JOIN person_date AS birth ON birth.person_id=persons.person_id AND attribute_key='birthdate' WHERE persons.person_id=?";
+	$sql = "SELECT persons.person_id, first_name AS firstName, last_name AS lastName, birth.value AS birthdate FROM persons LEFT JOIN person_date AS birth ON birth.person_id=persons.person_id AND attribute_key='birthdate' WHERE persons.person_id=?";
 	return $db->getRow($sql, array($personId));
 }
 

@@ -5,7 +5,7 @@ require "../includes/init.php";
 $token = $_SESSION['token'];
 
 if(empty($token)) {
-	$scope = "email%20profile";
+	$scope = "email%20profile%20https://www.google.com/m8/feeds";
 	$authUrl = sprintf("https://accounts.google.com/o/oauth2/auth?scope=%s&redirect_uri=%s&response_type=code&client_id=%s", $scope, $redirect_uri, $client_id);
 	echo $authUrl;
 	header("Location: " . $authUrl);
@@ -36,6 +36,7 @@ $_SESSION['googleId'] = $user->sub;
 	<head>
 		<title>xioContacts</title>
 		<meta charset="utf-8" />
+		<link rel="stylesheet" href="//cdn.xio.se/xioPop/dev/XioPop.css" type="text/css" />
 		<link rel="stylesheet" href="/css/style.css" type="text/css" />
 		<link rel="icon" href="/img/contact.png" sizes="32x32">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -44,7 +45,7 @@ $_SESSION['googleId'] = $user->sub;
 
 		<div class="column left">
 
-			<input type="search" id="filter" />
+			<input type="search" class="person-list-filter" />
 
 			<menu type="toolbar">
 				<button type="button" id="btnNewPerson">+</button>
@@ -53,7 +54,7 @@ $_SESSION['googleId'] = $user->sub;
 			</menu>
 
 			<div id="personsBox">
-				<ul id="persons"></ul>
+				<ul class="person-list"></ul>
 			</div>
 		</div>
 
@@ -65,8 +66,9 @@ $_SESSION['googleId'] = $user->sub;
 				<a href="/action/logout.php">Logout</a><br>
 			</div>
 
-			<div id="info"></div>
+			<section class="area" data-area="person"></section>
 		</div>
+
 
 
 		<template id="tplPerson">
@@ -74,26 +76,34 @@ $_SESSION['googleId'] = $user->sub;
 			<span class="lastName"></span>
 			<br>
 			<span class="birthdate"></span>
+			<button type="button" class="person-edit">Edit</button>
 
-			<button type="button" class="edit">Edit</button>
 
+			<ul class="person-tags"></ul>
+			<button type="button" class="person-add-tag">Add tag</button>
 		</template>
 
 
-
-		<dialog id="dialogPerson">
-			<form>
+		<template id="tplPersonEdit">
+			<h1></h1>
+			<form action='/action/person_update.php'>
 				<input type="hidden" name="personId" />
 				<input type="text" name="firstName" placeholder="firstname" />
 				<input type="text" name="lastName" placeholder="lastname" />
 				<br />
+
 				<input type="date" name="birthdate" placeholder="birthdate" />
 				<br><br>
 				<button type="submit">Save</button>
 				<button type="button" id="btnCancelPersonEdit">Cancel</button>
 			</form>
-		</dialog>
+		</template>
 
+		<script src="//cdn.xio.se/xioPop/dev/XioPop.js"></script>
+		<script src="//cdn.xio.se/XI/dev/XI.Element.js"></script>
+		<script src="//cdn.xio.se/XI/dev/XI.Ajax.js"></script>
+		<script src="/js/person-list.js"></script>
+		<script src="/js/person-edit.js"></script>
 		<script src="/js/main.js"></script>
 	</body>
 </html>

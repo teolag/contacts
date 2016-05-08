@@ -1,35 +1,43 @@
 
 var persons, tags;
-var txtFilter = document.getElementById("filter");
-txtFilter.addEventListener("keyup", filterPersons, false);
-txtFilter.addEventListener("change", filterPersons, false);
-txtFilter.addEventListener("search", filterPersons, false);
 
-var personList = document.getElementById("persons");
-personList.addEventListener("click", personListClickHandler, false);
-
-var info = document.getElementById("info");
-
-var dialogPerson = document.getElementById("dialogPerson");
-var dialogPersonForm = dialogPerson.querySelector("form");
-dialogPersonForm.addEventListener("submit", submitPerson, false);
+var personArea = XI.select('.area[data-area="person"]');
 
 
-var btnCancelPersonEdit = document.getElementById("btnCancelPersonEdit");
-btnCancelPersonEdit.addEventListener("click", cancelEditPerson, false);
+var info = XI.selectId("info");
 
-var btnNewPerson = document.getElementById("btnNewPerson");
-btnNewPerson.addEventListener("click", createNewPerson, false);
+var tplPerson = XI.selectId("tplPerson");
 
-var btnSelectAll = document.getElementById("btnSelectAll");
-btnSelectAll.addEventListener("click", selectAll, false);
 
-var btnDeselectAll = document.getElementById("btnDeselectAll");
-btnDeselectAll.addEventListener("click", deselectAll, false);
+var btnNewPerson = XI.selectId("btnNewPerson");
+	btnNewPerson.addEventListener("click", PersonEdit.new, false);
+
 
 
 
 loadAll();
+
+
+
+/*
+function initialize() {
+  var myLatlng = new google.maps.LatLng(-25.363882,131.044922);
+  var mapOptions = {
+    zoom: 4,
+    center: myLatlng
+  }
+  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+  var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map,
+      title: 'Hello World!'
+  });
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+*/
+
 
 
 
@@ -48,34 +56,12 @@ function allLoaded(e) {
 	console.log(Object.keys(persons).length + " persons loaded");
 	console.log(Object.keys(tags).length + " tags loaded");
 
-	printPersonList();
+	PersonList.update();
 }
 
 
 
-function printPersonList() {
-	var listItems = document.createDocumentFragment();
 
-	var personIds = Object.keys(persons);
-	personIds = sortPersons(personIds, 'name');
-
-
-	for(var i=0; i<personIds.length; i++) {
-		var person = persons[personIds[i]];
-		var li = document.createElement("LI");
-		li.dataset.id = personIds[i];
-		li.textContent = person.first_name + " " + person.last_name;
-
-		if(person.birthdate) {
-			li.textContent += " (" + getAge(new Date(person.birthdate)) + ")";
-		}
-		listItems.appendChild(li);
-		person.li = li;
-	}
-
-	personList.innerHTML="";
-	personList.appendChild(listItems);
-}
 
 
 
@@ -92,62 +78,7 @@ function hasWordInTags(word, tagIds) {
 	return false;
 }
 
-function filterPersons(e) {
-	//console.log("filter", e.type, txtFilter.value, e);
-	var words = txtFilter.value.split(" ");
 
-	for(var id in persons) {
-		var person = persons[id];
-		var show = true;
-		var personStr = (person.first_name + " " + person.last_name).toLowerCase();
-
-		for(var j=0; j<words.length; j++) {
-			var word = words[j].toLowerCase();
-
-			var wordInPerson = personStr.indexOf(word)>-1;
-			var wordInTags = hasWordInTags(word, person.tags);
-			if(!wordInPerson && !wordInTags) {
-				show=false;
-				break;
-			}
-		}
-
-		if(show) {
-			person.li.classList.remove("hidden");
-		} else {
-			person.li.classList.add("hidden");
-		}
-	}
-
-}
-
-function personListClickHandler(e) {
-
-	li = e.target;
-	while(li.nodeName!=="LI") {
-		if(li===personList) return;
-		li = li.parentNode;
-	}
-
-	console.log("click", e);
-	if(e.ctrlKey || e.metaKey) {
-		li.classList.toggle("selected");
-	} else if(e.which===1) {
-		deselectAll();
-		li.classList.add("selected");
-	}
-	updateSelectedPersons();
-
-}
-
-function selectAll() {
-	var visible = personList.querySelectorAll('li:not(.hidden)');
-	for(var i=0; i<visible.length; i++) {
-		var li = visible[i];
-		li.classList.add("selected");
-	}
-	updateSelectedPersons();
-}
 
 function deselectVisible() {
 	var selected = personList.querySelectorAll('li.selected:not(.hidden)');
@@ -158,50 +89,36 @@ function deselectVisible() {
 	updateSelectedPersons();
 }
 
-function deselectAll() {
-	var selected = personList.querySelectorAll('li.selected');
-	for(var i=0; i<selected.length; i++) {
-		var li = selected[i];
-		li.classList.remove("selected");
-	}
-	updateSelectedPersons();
-}
 
-function updateSelectedPersons() {
-	var selected = personList.querySelectorAll("li.selected");
-	var ids = [];
-	info.innerHTML="";
 
-	for(var i=0; i<selected.length; i++) {
-		var li = selected[i];
-		ids.push(li.dataset.id);
-	}
-
+PersonList.onChange(function(ids) {
 	if(ids.length===0) {
-		info.textContent = "no contacts selected";
+		console.log("show startpage");
 	} else if(ids.length===1) {
 		showPerson(ids[0]);
 	} else {
-		info.textContent = ids.length + " contacts selected";
+		personArea.innerHTML = ids.length + " contacts selected";
 		var joinButton = document.createElement("button");
 		joinButton.type="button";
 		joinButton.textContent = "Join";
 		joinButton.dataset.personIds=ids;
 		joinButton.addEventListener("click", joinPersons, false);
-		info.appendChild(joinButton);
+		personArea.appendChild(joinButton);
 	}
-}
+});
 
 
 function showPerson(personId) {
-	var content = document.getElementById('tplPerson').content;
 	var person = persons[personId];
 
+
+	var content = XI.selectId('tplPerson').content;
+
 	var firstName = content.querySelector('span.firstName');
-    firstName.textContent = person.first_name;
+    firstName.textContent = person.firstName;
 
 	var lastName = content.querySelector('span.lastName');
-    lastName.textContent = person.last_name;
+    lastName.textContent = person.lastName;
 
 	var birthdate = content.querySelector('span.birthdate');
 	if(person.birthdate) {
@@ -210,62 +127,43 @@ function showPerson(personId) {
 		birthdate.textContent = "birthday unknown";
 	}
 
-    info.appendChild(document.importNode(content, true));
-
-	var editButton = info.querySelector("button.edit");
-	editButton.dataset.personId = personId;
-	editButton.addEventListener("click", editPerson, false);
-}
-
-
-function createNewPerson() {
-	dialogPersonForm.reset();
-	dialogPerson.showModal();
-}
-
-function editPerson(e) {
-	dialogPersonForm.reset();
-	var inputs = dialogPersonForm.elements;
-	var personId = e.target.dataset.personId;
-	var person = persons[personId];
-
-	inputs.personId.value = personId;
-	inputs.firstName.value = person.first_name;
-	inputs.lastName.value = person.last_name;
-	if(person.birthdate) {
-		inputs.birthdate.value = person.birthdate.substr(0,10);
+	var tagList = content.querySelector('.person-tags');
+	tagList.innerHTML = "";
+	if(person.tags) {
+		person.tags.forEach(function(tagId) {
+			var tag = tags[tagId];
+			console.log("tag", tag);
+			XI.create("li", {
+				class: "person-tag",
+				text: tag.tag,
+				data: {tagId: tagId},
+				appendTo: tagList
+			});
+		});
 	}
-	dialogPerson.showModal();
+
+
+	personArea.innerHTML = "";
+	personArea.appendChild(document.importNode(content, true));
+
+	var editButton = personArea.querySelector(".person-edit");
+	editButton.dataset.personId = personId;
+	editButton.addEventListener("click", PersonEdit.edit, false);
+
+	var addTagButton = personArea.querySelector(".person-add-tag");
+	addTagButton.dataset.personId = personId;
+	addTagButton.addEventListener("click", addTag, false);
+}
+
+
+
+function addTag(e) {
+	console.log("Add tag", e.target.dataset);
 }
 
 function joinPersons(e) {
 	console.log("join persons", e.target.dataset.personIds);
 }
-
-function cancelEditPerson() {
-	dialogPerson.close();
-	dialogPersonForm.reset();
-}
-
-
-function submitPerson(e) {
-	var formData = new FormData(dialogPersonForm);
-
-	var xhr = new XMLHttpRequest();
-	xhr.responseType = "json";
-	xhr.addEventListener("load", submitPersonCallback, false);
-	xhr.open("POST", "/action/person_update.php", true);
-	xhr.send(formData);
-
-
-	dialogPerson.close();
-	e.preventDefault();
-}
-
-function submitPersonCallback(e) {
-	console.log("submitPersonCallback", e);
-}
-
 
 
 
@@ -275,8 +173,8 @@ function sortPersons(personIds, order, reverse) {
 		var p2 = persons[id2];
 		switch(order) {
 			case "name":
-			var n1 = (p1.first_name+p1.last_name).toLowerCase();
-			var n2 = (p2.first_name+p2.last_name).toLowerCase();
+			var n1 = (p1.firstName+p1.lastName).toLowerCase();
+			var n2 = (p2.firstName+p2.lastName).toLowerCase();
 			if (n1 < n2) return -1;
 			if (n1 > n2) return 1;
 			return 0;
