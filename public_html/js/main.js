@@ -159,7 +159,50 @@ function showPerson(personId) {
 
 function addTag(e) {
 	console.log("Add tag", e.target.dataset);
+	var personId = parseInt(e.target.dataset.personId);
+
+	var options = [];
+	var tagIds = Object.keys(tags);
+	for(var i=0; i<tagIds.length; i++) {
+		options.push({id: parseInt(tagIds[i]), text: tags[tagIds[i]].tag});
+	}
+
+	XioPop.select({
+		title: "Add tag",
+		text: "Select or create a new tag for this person",
+		options: options,
+		allowCreate: true,
+		onSubmit: tagChosen
+	});
+
+	function tagChosen(answer) {
+		if(answer.index===-1) {
+			createNewTag(answer.text);
+		} else {
+			addTagToPerson(personId, answer.id);
+		}
+	}
+
+	function createNewTag(tag) {
+		XI.post("/action/add_tag.php", {
+			data: {tag: tag},
+			callback: tagCreated
+		});
+		console.log("New tag", tag);
+
+		function tagCreated(data) {
+			console.log("tag created", data);
+		}
+
+	}
+
 }
+
+
+function addTagToPerson(personId, tagId) {
+	console.log("Add tag", tagId, "to person", personId);
+}
+
 
 function joinPersons(e) {
 	console.log("join persons", e.target.dataset.personIds);
